@@ -38,7 +38,7 @@ const Chat = () => {
 
       try {
         // Call the API to get AI response
-        const response = await axios.post("ai-chatbot-server-phi.vercel.app/generate", {
+        const response = await axios.post("https://ai-chatbot-server-phi.vercel.app/generate", {
           prompt: input,
         });
 
