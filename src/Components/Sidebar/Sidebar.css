@@ -4,12 +4,8 @@
   left: 0;
   height: 100%;
   width: 280px;
-  color: var(--sidebar-text-color);
-  background: linear-gradient(
-    135deg,
-    var(--sidebar-bg-color),
-    var(--chat-history-text-color)
-  );
+  color: var(--white-color);
+  background: var(--black-color);
   transition: all 0.3s ease-in-out;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -43,18 +39,15 @@
   cursor: pointer;
   display: flex;
   color: var(--white-color);
-  font-size: 1.2em;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 400;
   align-items: center;
 }
 
 .chat-history li:hover {
-  background: linear-gradient(
-    135deg,
-    var(--sidebar-bg-color),
-    var(--chat-history-text-color)
-  );
+  background: var(--gray-light-color);
   transform: scale(1.05);
+
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 

@@ -1,8 +1,16 @@
 import Sidebar from "../../Components/Sidebar/Sidebar.jsx";
 import { useState, useEffect } from "react";
 import "./Chat.css";
-import axios from "axios";
 import Navbar from "../../Components/Navbar/Navbar.jsx";
+import { api } from "../../utils/url.js";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setChatHistory,
+  setChatId,
+  updateChatHistory,
+  updateChatHistoryMessages,
+} from "../../redux/slices/chat.jsx";
+import { useNavigate } from "react-router-dom";
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -10,6 +18,39 @@ const Chat = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isInitialView, setIsInitialView] = useState(true);
+  const user = useSelector((state) => state.user.user);
+  const chatId = useSelector((state) => state?.chat?.chatId);
+  const chatHistory = useSelector((state) => state?.chat?.chatHistory);
+  const navigate = useNavigate();
+  // console.log(chatHistory);
+  const dispatch = useDispatch();
+  // console.log(chatId);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/signup");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (chatId) {
+      console.log(chatHistory);
+      const chat = chatHistory?.find((chat) => chat._id === chatId);
+      setMessages(chat?.messages);
+      setIsInitialView(false);
+      // dispatch(setChatId(chatId));
+    } else {
+      setIsInitialView(true);
+    }
+  }, [chatId]);
+
+  useEffect(() => {
+    console.log(chatId);
+  }, [chatId]);
+
+  useEffect(() => {
+    console.log(messages);
+  }, [messages]);
 
   const handleSidebarToggle = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -22,39 +63,68 @@ const Chat = () => {
   const handleSend = async () => {
     if (input.trim()) {
       setIsInitialView(false);
-      // Add user message
-      setMessages([
-        ...messages,
-        { id: messages.length + 1, text: input, type: "user" },
-      ]);
-
-      // Show "Generating..." message
-      setMessages((prev) => [
-        ...prev,
-        { id: prev.length + 1, text: "Generating...", type: "ai" },
-      ]);
-
-      setIsGenerating(true);
 
       try {
-        // Call the API to get AI response
-        const response = await axios.post("https://ai-chatbot-server-phi.vercel.app/generate", {
+        setMessages([
+          ...messages,
+          { question: input, answer: "Generating..." },
+        ]);
+        setIsGenerating(true);
+
+        const response = await api.post("/generate", {
           prompt: input,
         });
+        console.log(response);
 
-        const data = response.data;
+        response && setIsGenerating(false);
 
-        if (data && data.response) {
-          // Replace "Generating..." with AI response
-          setMessages((prev) =>
-            prev.map((msg) =>
-              msg.text === "Generating..."
-                ? { ...msg, text: data.response }
-                : msg
-            )
+        if (chatId) {
+          console.log("chatId is available");
+          dispatch(
+            updateChatHistoryMessages({
+              chatId: chatId,
+              messages: [
+                ...messages,
+                { question: input, answer: response?.data?.response },
+              ],
+            })
           );
+          const token = JSON.parse(localStorage.getItem("token"));
+
+          const res = await api.put(
+            `/api/chat/update/${chatId}`,
+            {
+              question: input,
+              answer: response?.data?.response,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          console.log(res);
+
         } else {
-          console.error("Error fetching AI response:", data.error);
+          console.log("chatId is not available");
+          const token = JSON.parse(localStorage.getItem("token"));
+
+          const res = await api.post(
+            "/api/chat/save",
+            {
+              question: input,
+              answer: response?.data?.response,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          console.log(res);
+          dispatch(setChatId(res?.data?.data?._id));
+          dispatch(updateChatHistory(res?.data?.data));
+          console.log(res);
         }
       } catch (error) {
         console.error("Error:", error.message);
@@ -74,37 +144,36 @@ const Chat = () => {
 
   return (
     <>
-      <Sidebar 
-        isOpen={isSidebarOpen} 
-        onClose={handleSidebarClose}
-      />
-      <div className={`chat-container ${!isSidebarOpen ? 'sidebar-closed' : ''} ${isInitialView ? 'initial-view' : ''}`}>
-        <Navbar 
-          onHamburgerClick={handleSidebarToggle} 
-          isSidebarOpen={isSidebarOpen} 
+      <Sidebar isOpen={isSidebarOpen} onClose={handleSidebarClose} />
+      <div
+        className={`chat-container ${!isSidebarOpen ? "sidebar-closed" : ""} ${
+          isInitialView ? "initial-view" : ""
+        }`}
+      >
+        <Navbar
+          onHamburgerClick={handleSidebarToggle}
+          isSidebarOpen={isSidebarOpen}
         />
         {isInitialView ? (
           <div className="chatbot-text">AI-Chatbot</div>
         ) : (
           <div className="chat-messages">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`chat-message ${
-                  message.type === "user" ? "user-message" : "ai-message"
-                }`}
-              >
-                <div className="message-content">
-                  <span className="message-type">
-                    {message.type === "user" ? "You" : "AI"}
-                  </span>
-                  {message.text}
+            {messages?.length > 0 &&
+              messages?.map((message, index) => (
+                <div key={index}>
+                  <div className={`chat-message ${"user-message"}`}>
+                    <div className="message-content">{message?.question}</div>
+                  </div>
+                  <div className={`chat-message ${"ai-message"}`}>
+                    <div className="message-content">{message?.answer}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
           </div>
         )}
-        <div className={`chat-input-container ${isInitialView ? 'centered' : ''}`}>
+        <div
+          className={`chat-input-container ${isInitialView ? "centered" : ""}`}
+        >
           <input
             type="text"
             value={input}
@@ -114,7 +183,12 @@ const Chat = () => {
             onKeyPress={(e) => e.key === "Enter" && handleSend()}
           />
           <button onClick={handleSend} className="chat-send-button">
-            Send
+            <img
+              src="/assets/icons/top-arrow.png"
+              width={18}
+              height={18}
+              alt="send"
+            />
           </button>
         </div>
       </div>

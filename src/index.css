@@ -15,12 +15,33 @@ body {
 
 /* Start Generation Here */
   :root {
-    --sidebar-bg-color: lightsteelblue; /* Light Steel Blue */
-    --sidebar-text-color: steelblue; /* Steel Blue */
-    --hamburger-bg-color: cadetblue; /* Cadet Blue */
-    --chat-history-bg-color: lightskyblue; /* Light Sky Blue */
-    --chat-history-hover-bg-color: deepskyblue; /* Deep Sky Blue */
-    --chat-history-text-color: steelblue; /* Steel Blue */
-    --white-color: #fff; /* White */
+    --white-color: #D6D6D6; /* White */
+    --black-color: #171717; /* White */
+    --gray-color: #212121; /* White */
+    --gray-light-color: #303030; /* White */
+
   }
 /* End Generation Here */
+
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  margin-top: 5px;
+  background: var(--gray-light-color)
+  ;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--gray-color);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--white-color);
+}
+

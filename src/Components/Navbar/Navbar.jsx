@@ -1,7 +1,10 @@
 import React from 'react';
 import './Navbar.css';
+import { useSelector } from 'react-redux';
 
 const Navbar = ({ onHamburgerClick, isSidebarOpen }) => {
+  const user = useSelector((state) => state.user);
+  // console.log(user);
   return (
     <div className={`navbar ${!isSidebarOpen ? 'sidebar-closed' : ''}`}>
       <div className="navbar-left">
@@ -16,11 +19,11 @@ const Navbar = ({ onHamburgerClick, isSidebarOpen }) => {
       <div className="navbar-right">
         <div className="user-profile">
           <img 
-            src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" 
+            src={user?.user?.img || "/assets/icons/profile.png"} 
             alt="User" 
             className="user-avatar"
           />
-          <span className="user-name">John Doe</span>
+          <span className="user-name">{user?.user?.name.split(" ")[0]}</span>
         </div>
       </div>
     </div>
