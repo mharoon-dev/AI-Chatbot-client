@@ -29,14 +29,10 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    console.log(formData);
-
     try {
       dispatch(loginStart());
-
       const res = await api.post("api/auth/login", formData);
-      console.log(res);
+      
       toast(res?.data?.token ? res?.data?.message + " 😊" : res?.data?.message + " 😞", {
         style: {
           padding: "24px",
@@ -51,11 +47,13 @@ const Login = () => {
       if (res?.data?.token) {
         dispatch(loginSuccess(res?.data?.data));
         localStorage.setItem("token", JSON.stringify(res?.data?.token));
+        // Sirf successful login pe navigate karein
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      } else {
+        dispatch(loginFailure(res?.data?.message));
       }
-      setTimeout(() => {
-        navigate("/");
-      }, 2000);
-
     } catch (error) {
       dispatch(loginFailure(error?.response?.data?.message));
       console.log(error);
@@ -70,7 +68,6 @@ const Login = () => {
         },
       });
     }
-    // Handle login form submission logic here
   };
 
   return (

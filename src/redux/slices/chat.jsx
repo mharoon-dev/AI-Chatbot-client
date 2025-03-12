@@ -29,7 +29,8 @@ const chatSlice = createSlice({
       const chat = state.chatHistory.find((chat) => chat._id === action.payload.chatId);
       if (chat) {
         console.log(chat);
-        chat.messages = action.payload.messages;
+        chat.messages = [...action.payload.messages];
+        console.log('Updated chat history:', state.chatHistory);
       }
     },
     setError: (state, action) => {

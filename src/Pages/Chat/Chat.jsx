@@ -41,12 +41,10 @@ const Chat = () => {
       // dispatch(setChatId(chatId));
     } else {
       setIsInitialView(true);
+      setMessages([]);
     }
   }, [chatId]);
 
-  useEffect(() => {
-    console.log(chatId);
-  }, [chatId]);
 
   useEffect(() => {
     console.log(messages);
@@ -79,14 +77,16 @@ const Chat = () => {
         response && setIsGenerating(false);
 
         if (chatId) {
-          console.log("chatId is available");
+          const updatedMessages = [
+            ...messages,
+            { question: input, answer: response?.data?.response },
+          ];
+          setMessages(updatedMessages); // Update local state first
+
           dispatch(
             updateChatHistoryMessages({
               chatId: chatId,
-              messages: [
-                ...messages,
-                { question: input, answer: response?.data?.response },
-              ],
+              messages: updatedMessages,
             })
           );
           const token = JSON.parse(localStorage.getItem("token"));
@@ -104,7 +104,6 @@ const Chat = () => {
             }
           );
           console.log(res);
-
         } else {
           console.log("chatId is not available");
           const token = JSON.parse(localStorage.getItem("token"));
