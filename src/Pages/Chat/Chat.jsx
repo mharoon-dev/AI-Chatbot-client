@@ -143,7 +143,7 @@ const Chat = () => {
 
   return (
     <>
-      <Sidebar isOpen={isSidebarOpen} onClose={handleSidebarClose} />
+      <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} onClose={handleSidebarClose} />
       <div
         className={`chat-container ${!isSidebarOpen ? "sidebar-closed" : ""} ${
           isInitialView ? "initial-view" : ""

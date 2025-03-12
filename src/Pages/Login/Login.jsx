@@ -6,6 +6,7 @@ import { api } from "../../utils/url";
 import { useDispatch, useSelector } from "react-redux";
 import { loginFailure, loginStart, loginSuccess } from "../../redux/slices/user.jsx";
 import Loader from "../../Components/Loader/Loader.jsx";
+import { setChatHistory } from "../../redux/slices/chat.jsx";
 
 
 const Login = () => {
@@ -47,6 +48,14 @@ const Login = () => {
       if (res?.data?.token) {
         dispatch(loginSuccess(res?.data?.data));
         localStorage.setItem("token", JSON.stringify(res?.data?.token));
+
+        const chatRes = await api.get(`/api/chat/user-history`, {
+          headers: {
+            Authorization: `Bearer ${res?.data?.token}`,
+          },
+        });
+        // console.log(chatRes);
+        dispatch(setChatHistory(chatRes?.data?.data));
         // Sirf successful login pe navigate karein
         setTimeout(() => {
           navigate("/");

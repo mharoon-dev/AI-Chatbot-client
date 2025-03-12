@@ -3,7 +3,7 @@ import "./Sidebar.css";
 import { useDispatch, useSelector } from "react-redux";
 import { setChatId } from "../../redux/slices/chat";
 
-const Sidebar = ({ isOpen, onClose }) => {
+const Sidebar = ({ isOpen, setIsOpen, onClose }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 576);
   const chatHistory = useSelector((state) => state?.chat?.chatHistory);
   const dispatch = useDispatch();
@@ -38,6 +38,19 @@ const Sidebar = ({ isOpen, onClose }) => {
     );
     setFilteredChats(filteredChats);
   };
+
+  const checkScreenSize = () => {
+    const mobile = window.innerWidth <= 576;
+    if (mobile) {
+      setIsOpen(false);
+    } else {
+      setIsOpen(true);
+    }
+  };
+
+  useEffect(() => {
+    checkScreenSize();
+  }, []);
 
   return (
     <>
